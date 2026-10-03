@@ -1,0 +1,54 @@
+---
+- name: Install nginx
+  ansible.builtin.apt:
+    name: nginx
+    state: present
+    update_cache: true
+
+- name: Remove default site
+  ansible.builtin.file:
+    path: /etc/nginx/sites-enabled/default
+    state: absent
+  notify: Restart nginx
+
+- name: Create web root for every vhost
+  ansible.builtin.file:
+    path: "{{ nginx_vhosts_web_root }}/{{ item }}"
+    state: directory
+    owner: root
+    group: root
+    mode: "0755"
+  loop: "{{ sites }}"
+
+- name: Copy vhost config for every site
+  ansible.builtin.template:
+    src: vhost.conf.j2
+    dest: "/etc/nginx/sites-available/{{ item }}.conf"
+    owner: root
+    group: root
+    mode: "0644"
+  loop: "{{ sites }}"
+  notify: Restart nginx
+
+- name: Enable every vhost
+  ansible.builtin.file:
+    src: "/etc/nginx/sites-available/{{ item }}.conf"
+    dest: "/etc/nginx/sites-enabled/{{ item }}.conf"
+    state: link
+  loop: "{{ sites }}"
+  notify: Restart nginx
+
+- name: Copy index page for every site
+  ansible.builtin.template:
+    src: index.html.j2
+    dest: "{{ nginx_vhosts_web_root }}/{{ item }}/index.html"
+    owner: root
+    group: root
+    mode: "0644"
+  loop: "{{ sites }}"
+
+- name: Ensure nginx is enabled and started
+  ansible.builtin.service:
+    name: nginx
+    state: started
+    enabled: true

@@ -1,0 +1,31 @@
+---
+- name: Deploy nginx with virtual hosts
+  hosts: webservers
+  become: true
+  vars:
+    sites:
+      - mehmat.ru
+      - fizfak.ru
+      - etis.com
+  roles:
+    - nginx_vhosts
+
+# Чтобы проверять сайты по имени с control-ноды, добавляем их в /etc/hosts
+# (IP берётся из инвентаря, имена — из переменной sites).
+- name: Add sites to /etc/hosts of the control node
+  hosts: localhost
+  connection: local
+  become: true
+  gather_facts: false
+  vars:
+    sites:
+      - mehmat.ru
+      - fizfak.ru
+      - etis.com
+  tasks:
+    - name: Add vhost names to /etc/hosts
+      ansible.builtin.lineinfile:
+        path: /etc/hosts
+        regexp: '\s{{ item }}$'
+        line: "{{ hostvars[groups['webservers'][0]].ansible_host }} {{ item }}"
+      loop: "{{ sites }}"

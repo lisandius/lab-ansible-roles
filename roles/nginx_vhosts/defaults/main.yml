@@ -1,0 +1,5 @@
+---
+# Список виртуальных сайтов (переопределяется в playbook/play/vars)
+sites:  # noqa: var-naming[no-role-prefix]  (имя `sites` задано условием лабы)
+  - example.local
+nginx_vhosts_web_root: /var/www

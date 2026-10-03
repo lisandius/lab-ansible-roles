@@ -1,0 +1,8 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head><meta charset="utf-8"><title>{{ item }}</title></head>
+<body>
+<h1>Добро пожаловать на сайт {{ item }}</h1>
+<p>Сервер: {{ inventory_hostname }} ({{ ansible_default_ipv4.address | default('n/a') }})</p>
+</body>
+</html>

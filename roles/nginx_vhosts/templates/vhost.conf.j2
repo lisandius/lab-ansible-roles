@@ -1,0 +1,15 @@
+# {{ ansible_managed }}
+server {
+    listen 80;
+    server_name {{ item }};
+
+    root {{ nginx_vhosts_web_root }}/{{ item }};
+    index index.html;
+
+    access_log /var/log/nginx/{{ item }}.access.log;
+    error_log  /var/log/nginx/{{ item }}.error.log;
+
+    location / {
+        try_files $uri $uri/ =404;
+    }
+}
